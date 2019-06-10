@@ -76,7 +76,7 @@ public class DatapackUpdateManager{
 		for(DatapackUpdater updater:updaters.values())
 			updater.run();
 		SelectiveReloadStateHandler.INSTANCE.beginReload(resourceTypesToReload::contains);
-		Gac14Core.getInstance().getServer();
+		server.reload();
 		SelectiveReloadStateHandler.INSTANCE.endReload();
 	}
 	
