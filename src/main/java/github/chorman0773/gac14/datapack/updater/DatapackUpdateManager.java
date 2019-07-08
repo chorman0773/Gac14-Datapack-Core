@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import github.chorman0773.gac14.Gac14Core;
-import net.minecraft.resources.AbstractResourcePack;
+import net.minecraft.resources.ResourcePack;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.IResourcePack;
 import net.minecraft.resources.ResourcePackInfo;
@@ -36,7 +36,7 @@ public class DatapackUpdateManager{
 	
 	public DatapackUpdateManager(MinecraftServer server) throws IOException, GitAPIException {
 		this.server = server;
-		for(ResourcePackInfo info:server.getResourcePacks().getPackInfos())
+		for(ResourcePackInfo info:server.getResourcePacks().getAvailablePacks())
 			handleResourcePack(info.getResourcePack());
 		Thread t = new Thread(this::doUpdate);
 		t.setDaemon(true);
@@ -48,8 +48,8 @@ public class DatapackUpdateManager{
 	}
 	
 	private void handleResourcePack(IResourcePack pack) throws IOException, GitAPIException {
-		if(pack instanceof AbstractResourcePack) {
-			File f = ((AbstractResourcePack)pack).file;
+		if(pack instanceof ResourcePack) {
+			File f = ((ResourcePack)pack).file;
 			if(f.isDirectory()) {
 				Path p = f.toPath();
 				if(Files.exists(p.resolve(".git")))
@@ -66,7 +66,7 @@ public class DatapackUpdateManager{
 		while(serverRunning) {
 			Instant now = Instant.now();
 			if(now.isAfter(nextUpdateTime)) {
-				server.addScheduledTask(this::update);
+				server.deferTask(this::update);
 				nextUpdateTime = now.plus(updateDelta);
 			}
 		}
